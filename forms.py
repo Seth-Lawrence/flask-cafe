@@ -3,7 +3,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, HiddenField, URLField, SelectField
 from wtforms.validators import InputRequired, Email, Length, URL, Optional
-from models import City
+from models import City, connect_db, db
 
 
 class AddOrEditCafe(FlaskForm):
@@ -30,11 +30,10 @@ class AddOrEditCafe(FlaskForm):
     )
 
     city_code = SelectField(
-        'city code',
-        choices=[(x, x) for x in City.query.all()]
+        'city code', coerce=int
     )
 
     image_url = URLField(
-        'url',
+        'image',
         validators=[URL(), Optional()]
     )

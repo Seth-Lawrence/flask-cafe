@@ -2,13 +2,15 @@
 
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from flask_debugtoolbar import DebugToolbarExtension
 
-from models import connect_db, Cafe
+from models import connect_db, Cafe, db
+from forms import AddOrEditCafe
 
 
 app = Flask(__name__)
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     "DATABASE_URL", 'postgresql:///flask_cafe')
@@ -87,3 +89,32 @@ def cafe_detail(cafe_id):
         'cafe/detail.html',
         cafe=cafe,
     )
+
+
+@app.route('/cafes/add', methods=["GET", "POST"])
+def show_or_add_cafe():
+    """shows form for cafe or handles submit"""
+
+    form = AddOrEditCafe()
+
+    if form.validate_on_submit():
+        new_cafe = Cafe(
+            name=form.name.data,
+            description=form.description.data,
+            url=form.url.data,
+            address=form.address.data,
+            city_code=form.city_code.data,
+            image_url=form.image_url.data
+        )
+
+        db.session.add(new_cafe)
+        db.session.commit()
+
+        return redirect(f'/cafes/{new_cafe.id}')
+
+    else:
+
+        return render_template(
+            'cafe/add-form.html',
+            form=form
+        )
