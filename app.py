@@ -2,10 +2,10 @@
 
 import os
 
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 
-from models import connect_db, Cafe, db
+from models import connect_db, Cafe, db, City
 from forms import AddOrEditCafe
 
 
@@ -96,6 +96,8 @@ def show_or_add_cafe():
     """shows form for cafe or handles submit"""
 
     form = AddOrEditCafe()
+    form.city_code.choices = City.get_cities()
+    # breakpoint()
 
     if form.validate_on_submit():
         new_cafe = Cafe(
@@ -110,11 +112,39 @@ def show_or_add_cafe():
         db.session.add(new_cafe)
         db.session.commit()
 
-        return redirect(f'/cafes/{new_cafe.id}')
+        redirect_url = url_for('cafe_list')
+
+        return redirect(redirect_url)
 
     else:
 
         return render_template(
             'cafe/add-form.html',
+            form=form
+        )
+
+
+@app.route('/cafes/<int:cafe_id>/edit', methods=['GET', 'POST'])
+def edit_cafe(cafe_id):
+    """handles form for editing a specific cafe"""
+
+    cafe = Cafe.query.get_or_404(cafe_id)
+    city_selections = City.get_cities()
+
+    form = AddOrEditCafe(obj=cafe)
+    form.city_code.choices = city_selections
+
+    if form.validate_on_submit():
+        form.populate_obj(cafe)
+
+        db.session.add(cafe)
+        db.session.commit()
+
+        return redirect(url_for('cafe_list'))
+
+    else:
+        return render_template(
+            'cafe/edit-form.html',
+            cafe_id=cafe_id,
             form=form
         )

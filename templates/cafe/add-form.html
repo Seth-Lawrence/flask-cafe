@@ -6,7 +6,11 @@
 
 <h1 class="mb-4">Add Cafe</h1>
 
+<form method="POST" action="{{ url_for('show_or_add_cafe') }}">
+
 {% include '_form.html' %}
 <!-- form goes here -->
+<button type>Submit</button>
+</form>
 
 {% endblock %}

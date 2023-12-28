@@ -6,6 +6,11 @@
 
 <h1 class="mb-4">Edit CafeName </h1>
 
-<!-- form goes here -->>
+<form action="{{ url_for('edit_cafe',cafe_id=cafe_id) }}" method="POST">
+
+{% include '_form.html' %}
+
+<button>Submit</button>
+</form>
 
 {% endblock %}

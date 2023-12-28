@@ -29,6 +29,17 @@ class City(db.Model):
         nullable=False,
     )
 
+    @classmethod
+    def get_cities(self):
+        """gets all instances of the class from the db"""
+        city_choices = [
+            (city.code,city.name) for city in City.query.all()
+        ]
+
+        return city_choices
+
+
+
 
 class Cafe(db.Model):
     """Cafe information."""

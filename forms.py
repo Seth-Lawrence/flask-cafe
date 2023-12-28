@@ -30,8 +30,7 @@ class AddOrEditCafe(FlaskForm):
     )
 
     city_code = SelectField(
-        'city code', coerce=int
-    )
+        'city code',)
 
     image_url = URLField(
         'image',
