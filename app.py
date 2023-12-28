@@ -2,7 +2,7 @@
 
 import os
 
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import connect_db, Cafe, db, City
@@ -113,6 +113,7 @@ def show_or_add_cafe():
         db.session.commit()
 
         redirect_url = url_for('cafe_list')
+        flash(f"{new_cafe.name} added",'success')
 
         return redirect(redirect_url)
 
@@ -140,11 +141,14 @@ def edit_cafe(cafe_id):
         db.session.add(cafe)
         db.session.commit()
 
+        flash(f"{cafe.name} edited",'success')
+
         return redirect(url_for('cafe_list'))
 
     else:
         return render_template(
             'cafe/edit-form.html',
             cafe_id=cafe_id,
-            form=form
+            form=form,
+            cafe=cafe
         )
