@@ -2,11 +2,12 @@
 
 import os
 
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, session, g
+
 from flask_debugtoolbar import DebugToolbarExtension
 
-from models import connect_db, Cafe, db, City
-from forms import AddOrEditCafe
+from models import connect_db, Cafe, db, City, User
+from forms import AddOrEditCafe, SignupForm, LoginForm, CSRFProtectionForm
 
 
 app = Flask(__name__)
@@ -29,28 +30,28 @@ CURR_USER_KEY = "curr_user"
 NOT_LOGGED_IN_MSG = "You are not logged in."
 
 
-# @app.before_request
-# def add_user_to_g():
-#     """If we're logged in, add curr user to Flask global."""
+@app.before_request
+def add_user_to_g():
+    """If we're logged in, add curr user to Flask global."""
 
-#     if CURR_USER_KEY in session:
-#         g.user = User.query.get(session[CURR_USER_KEY])
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
 
-#     else:
-#         g.user = None
-
-
-# def do_login(user):
-#     """Log in user."""
-
-#     session[CURR_USER_KEY] = user.id
+    else:
+        g.user = None
 
 
-# def do_logout():
-#     """Logout user."""
+def do_login(user):
+    """Log in user."""
 
-#     if CURR_USER_KEY in session:
-#         del session[CURR_USER_KEY]
+    session[CURR_USER_KEY] = user.id
+
+
+def do_logout():
+    """Logout user."""
+
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
 
 
 #######################################
@@ -113,7 +114,7 @@ def show_or_add_cafe():
         db.session.commit()
 
         redirect_url = url_for('cafe_list')
-        flash(f"{new_cafe.name} added",'success')
+        flash(f"{new_cafe.name} added", 'success')
 
         return redirect(redirect_url)
 
@@ -141,7 +142,7 @@ def edit_cafe(cafe_id):
         db.session.add(cafe)
         db.session.commit()
 
-        flash(f"{cafe.name} edited",'success')
+        flash(f"{cafe.name} edited", 'success')
 
         return redirect(url_for('cafe_list'))
 
@@ -152,3 +153,81 @@ def edit_cafe(cafe_id):
             form=form,
             cafe=cafe
         )
+
+
+######     USER ROUTES      #######################################################
+################################################################################
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    """handles signing up a new user or shows user form"""
+
+    form = SignupForm()
+
+    if form.validate_on_submit():
+
+        username = form.username.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        description = form.description.data
+        email = form.email.data
+        password = form.password.data
+        image_url = form.image_url.data
+
+        User.register(
+            username,
+            first_name,
+            last_name,
+            description,
+            email,
+            password,
+            image_url
+        )
+
+        flash("You are signed up and logged in")
+        return redirect(url_for('cafe_list'))
+
+    else:
+
+        return render_template(url_for('signup'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """handles login form"""
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        if User.authenticate(form.username.data, form.password.data):
+            do_login(form.username.data)
+            flash(f"Hello {form.username.data}")
+            return redirect(url_for('cafe_list'))
+        else:
+            flash('invalid login')
+
+    return render_template(url_for('login'))
+
+
+app.post('/logout')
+def logout():
+    """handles logout"""
+
+    form = CSRFProtectionForm
+
+    if form.validate_on_submit():
+        do_logout()
+        flash('You should have successfully logged out')
+        return redirect(url_for('homepage'))
+
+    return render_template(url_for('logout'))
+
+
+
+
+
+
+
+
+

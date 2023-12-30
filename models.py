@@ -8,6 +8,9 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
+DEFAULT_DESCRIPTION="enter description here"
+DEFAULT_IMAGE='https://images.unsplash.com/photo-1618794810603-4b384ce62737?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+
 
 class City(db.Model):
     """Cities for cafes."""
@@ -33,12 +36,10 @@ class City(db.Model):
     def get_cities(self):
         """gets all instances of the class from the db"""
         city_choices = [
-            (city.code,city.name) for city in City.query.all()
+            (city.code, city.name) for city in City.query.all()
         ]
 
         return city_choices
-
-
 
 
 class Cafe(db.Model):
@@ -95,12 +96,114 @@ class Cafe(db.Model):
         return f'{city.name}, {city.state}'
 
 
+class User(db.Model):
+    """user model"""
+
+    __tablename__ = "users"
+
+    id = db.Column(
+        db.Integer,
+        autoincrement=True,
+        primary_key=True,
+        nullable=False
+    )
+
+    username = db.Column(
+        db.Text,
+        unique=True,
+        nullable=False
+    )
+
+    admin = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False
+    )
+
+    email = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    first_name = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    last_name = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    description = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    image_url = db.Column(
+        db.Text,
+        default='/static/images/default-pic.png'
+    )
+
+    hashed_password = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    #TODO: add a default description, image_url / add hashed pw
+    @classmethod
+    def register(
+        cls,
+        username,
+        email,
+        first_name,
+        last_name,
+        password,
+        description=DEFAULT_DESCRIPTION,
+        image_url=DEFAULT_IMAGE
+    ):
+        """registers a new user and enters it into the db"""
+
+        hashed_password = (
+            bcrypt.generate_password_hash(password).decode('utf8')
+        )
+
+        user = User(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            description=description,
+            hashed_password = hashed_password,
+            image_url=image_url
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+    @classmethod
+    def authenticate(cls, username, password):
+        """handles log-on form, authenticates user log-on"""
+
+        user = cls.query.filter_by(username=username).one_or_none()
+
+        if user:
+            is_auth = (
+                bcrypt.check_password_hash(user.hashed_password, password)
+            )
+            if is_auth:
+                return user
+
+        return False
+
+
 def connect_db(app):
     """Connect this database to provided Flask app.
-
     You should call this in your Flask app.
     """
-
     app.app_context().push()
     db.app = app
     db.init_app(app)

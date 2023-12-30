@@ -305,6 +305,35 @@ class CafeAdminViewsTestCase(TestCase):
            resp = client.get(f"/cafes/{id}/edit", follow_redirects=True)
            self.assertIn(b'Test description', resp.data)
 
+class test_get_cities(TestCase):
+    """Tests for add/edit views on cafes."""
+
+    def setUp(self):
+        """Before each test, add sample city, users, and cafes"""
+
+        City.query.delete()
+        Cafe.query.delete()
+
+        sf = City(**CITY_DATA)
+        db.session.add(sf)
+
+        cafe = Cafe(**CAFE_DATA)
+        db.session.add(cafe)
+
+        db.session.commit()
+
+        self.cafe_id = cafe.id
+
+    def tearDown(self):
+        """After each test, delete the cities."""
+
+        Cafe.query.delete()
+        City.query.delete()
+        db.session.commit()
+
+    def test_get_cities(self):
+        list = User.get_cities
+
 
 #######################################
 # users

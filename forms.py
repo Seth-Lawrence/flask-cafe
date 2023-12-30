@@ -36,3 +36,60 @@ class AddOrEditCafe(FlaskForm):
         'image',
         validators=[URL(), Optional()]
     )
+
+
+class SignupForm(FlaskForm):
+    """form to sign up"""
+
+    username = StringField(
+        'username',
+        validators=[InputRequired()]
+    )
+
+    first_name = StringField(
+        'first name',
+        validators=[InputRequired()]
+    )
+
+    last_name = StringField(
+        'last name',
+        validators=[InputRequired()]
+    )
+
+    description = TextAreaField(
+        'description',
+        validators=[Optional()]
+    )
+
+    email = StringField(
+        'email',
+        validators=[InputRequired(), Email()]
+    )
+
+    password = StringField(
+        'password',
+        validators=[InputRequired(), Length(min=6)]
+    )
+
+    image_url = StringField(
+        'image',
+        validators=[Optional(), URL()]
+    )
+
+
+class LoginForm(FlaskForm):
+    """form for handling login"""
+
+    username = StringField(
+        'username',
+        validators=[InputRequired()]
+    )
+
+    password = StringField(
+        'password',
+        validators=[InputRequired()]
+    )
+
+class CSRFProtectionForm(FlaskForm):
+    """csrf protection when no form fields"""
+    ...
