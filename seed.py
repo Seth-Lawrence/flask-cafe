@@ -1,6 +1,6 @@
 """Initial data."""
 
-from models import City, Cafe, db  # , User
+from models import City, Cafe, db, User
 
 from app import app
 
@@ -46,33 +46,38 @@ db.session.add_all([c1, c2])
 db.session.commit()
 
 
-#######################################
-# add users
+######################################
+#add users
 
-# ua = User.register(
-#     username="admin",
-#     first_name="Addie",
-#     last_name="MacAdmin",
-#     description="I am the very model of the modern model administrator.",
-#     email="admin@test.com",
-#     password="secret",
-#     admin=True,
-# )
+ua = User.register(
+    username="admin",
+    first_name="Addie",
+    last_name="MacAdmin",
+    description="I am the very model of the modern model administrator.",
+    email="admin@test.com",
+    password="secret",
+    admin=True,
+)
 
-# u1 = User.register(
-#     username="test",
-#     first_name="Testy",
-#     last_name="MacTest",
-#     description="I am the ultimate representative user.",
-#     email="test@test.com",
-#     password="secret",
-# )
+u1 = User.register(
+    username="test",
+    first_name="Testy",
+    last_name="MacTest",
+    description="I am the ultimate representative user.",
+    email="test@test.com",
+    password="secret",
+)
+
+#TODO: Why is this added to the session only u1 and not ua?
+# it's erroring out here, and I already add and commit in the function
+#seems like my register function is working and adding to db successfully
+
 
 # db.session.add_all([u1])
 # db.session.commit()
 
 
-#######################################
+######################################
 # add likes
 
 # u1.liked_cafes.append(c1)
@@ -82,10 +87,10 @@ db.session.commit()
 # db.session.commit()
 
 
-#######################################
-# cafe maps
+######################################
+#cafe maps
 
 # c1.save_map()
 # c2.save_map()
-#
-#db.session.commit()
+
+# db.session.commit()

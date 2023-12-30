@@ -190,7 +190,7 @@ def signup():
 
     else:
 
-        return render_template(url_for('signup'))
+        return render_template('auth/signup-form.html',form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -207,21 +207,19 @@ def login():
         else:
             flash('invalid login')
 
-    return render_template(url_for('login'))
+    return render_template('auth/login-form.html',form=form)
 
 
 app.post('/logout')
 def logout():
     """handles logout"""
 
-    form = CSRFProtectionForm
+    form = CSRFProtectionForm()
 
     if form.validate_on_submit():
         do_logout()
         flash('You should have successfully logged out')
         return redirect(url_for('homepage'))
-
-    return render_template(url_for('logout'))
 
 
 

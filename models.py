@@ -163,7 +163,8 @@ class User(db.Model):
         last_name,
         password,
         description=DEFAULT_DESCRIPTION,
-        image_url=DEFAULT_IMAGE
+        image_url=DEFAULT_IMAGE,
+        admin=False
     ):
         """registers a new user and enters it into the db"""
 
@@ -178,7 +179,8 @@ class User(db.Model):
             last_name=last_name,
             description=description,
             hashed_password = hashed_password,
-            image_url=image_url
+            image_url=image_url,
+            admin=admin
         )
 
         db.session.add(user)
