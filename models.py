@@ -150,6 +150,12 @@ class User(db.Model):
         nullable=False
     )
 
+    liked_cafes = db.relationship(
+        'Cafe',
+        secondary='likes',
+        backref='liking_users'
+    )
+
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -202,6 +208,26 @@ class User(db.Model):
                 return user
 
         return False
+
+
+class Liked(db.Model):
+    '''liked cafes'''
+
+    __tablename__ = 'likes'
+
+    cafe_liked = db.Column(
+        db.Integer,
+        db.ForeignKey('cafes.id', ondelete='cascade'),
+        primary_key=True
+    )
+
+    user_liking = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='cascade'),
+        primary_key=True
+    )
+
+
 
 
 def connect_db(app):

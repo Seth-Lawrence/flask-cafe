@@ -68,23 +68,19 @@ u1 = User.register(
     password="secret",
 )
 
-#TODO: Why is this added to the session only u1 and not ua?
-# it's erroring out here, and I already add and commit in the function
-#seems like my register function is working and adding to db successfully
-
-
-# db.session.add_all([u1])
-# db.session.commit()
+#TODO: why was this originally only [u1]?
+db.session.add_all([u1,ua])
+db.session.commit()
 
 
 ######################################
 # add likes
 
-# u1.liked_cafes.append(c1)
-# u1.liked_cafes.append(c2)
-# ua.liked_cafes.append(c1)
+u1.liked_cafes.append(c1)
+u1.liked_cafes.append(c2)
+ua.liked_cafes.append(c1)
 
-# db.session.commit()
+db.session.commit()
 
 
 ######################################
