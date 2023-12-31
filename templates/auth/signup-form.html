@@ -9,8 +9,11 @@
 
     <h1 class="mb-4">Sign Up!</h1>
 
-    <form action="{{ url_for('signup') }}">
+    <form action="{{ url_for('signup') }}" method="POST">
 
+    {% include '_form.html' %}
+
+    <button>Submit</button>
     </form>
 
   </div>

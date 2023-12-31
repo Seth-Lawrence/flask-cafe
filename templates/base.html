@@ -40,11 +40,15 @@
         </li>
       </ul>
 
-      <!-- show when someone is logged in
-      <form class="form-inline my-2 my-lg-0">
+      {% if g.user %}
+      <form method="POST" action="{{ url_for('logout')}}" class="form-inline my-2 my-lg-0" >
+
+        {{ g.CSRF_form.hidden_tag() }}
+
         <button class="btn-sm btn btn-outline-light">Log Out</button>
       </form>
-      -->
+      {% endif %}
+
 
     </div>
   </nav>

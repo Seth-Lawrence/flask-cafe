@@ -7,7 +7,7 @@ from flask import Flask, render_template, redirect, url_for, flash, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import connect_db, Cafe, db, City, User
-from forms import AddOrEditCafe, SignupForm, LoginForm, CSRFProtectionForm
+from forms import AddOrEditCafe, SignupForm, LoginForm, CSRFProtectionForm, ProfileEditForm
 
 
 app = Flask(__name__)
@@ -39,6 +39,14 @@ def add_user_to_g():
 
     else:
         g.user = None
+
+
+@app.before_request
+def create_CSRF_protection():
+    """Adds blank CSRF protection form for actions that don't require filling out
+    an actual form, adds to global"""
+
+    g.CSRF_form = CSRFProtectionForm()
 
 
 def do_login(user):
@@ -175,27 +183,37 @@ def signup():
         password = form.password.data
         image_url = form.image_url.data
 
-        User.register(
-            username,
-            first_name,
-            last_name,
-            description,
-            email,
-            password,
-            image_url
+        user = User.register(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            description=description,
+            email=email,
+            password=password,
+            image_url=image_url
         )
 
-        flash("You are signed up and logged in")
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except:
+            flash("username already taken", 'warning')
+            db.session.rollback()
+            return redirect(url_for('signup'))
+
+        do_login(user)
+
+        flash("You are signed up and logged in", 'success')
         return redirect(url_for('cafe_list'))
 
     else:
 
-        return render_template('auth/signup-form.html',form=form)
+        return render_template('auth/signup-form.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """handles login form"""
+    '''handles login form'''
 
     form = LoginForm()
 
@@ -207,25 +225,53 @@ def login():
         else:
             flash('invalid login')
 
-    return render_template('auth/login-form.html',form=form)
+    return render_template('auth/login-form.html', form=form)
 
 
-app.post('/logout')
+@app.post('/logout')
 def logout():
-    """handles logout"""
+    '''handles logout'''
 
-    form = CSRFProtectionForm()
+    form = g.CSRF_form
+
+    if not g.user:
+        flash('unauthorized access', 'warning')
+        return redirect(url_for('homepage'))
 
     if form.validate_on_submit():
         do_logout()
-        flash('You should have successfully logged out')
-        return redirect(url_for('homepage'))
+        flash('You should have successfully logged out', 'success')
+
+    return redirect(url_for('homepage'))
 
 
+@app.get('/profile')
+def show_profile():
+    '''checks if user is logged in, if not, returns to login, otherwise shows
+    user profile'''
+
+    if not g.user:
+        flash(NOT_LOGGED_IN_MSG)
+        return redirect(url_for('login'))
+
+    return render_template('profile/detail.html')
 
 
+@app.route('/profile/edit', methods=['GET', 'POST'])
+def edit_profile():
+    '''handles editing the user profile'''
 
+    if not g.user:
+        flash(NOT_LOGGED_IN_MSG)
+        return redirect(url_for('login'))
 
+    form = ProfileEditForm(obj=g.user)
 
+    if form.validate_on_submit():
+        form.populate_obj(g.user)
+        db.session.add(g.user)
+        db.session.commit()
+        flash('profile edited', 'success')
+        return redirect(url_for('show_profile'))
 
-
+    return render_template('profile/edit-form.html', form=form)

@@ -1,7 +1,7 @@
 """Forms for Flask Cafe."""
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, HiddenField, URLField, SelectField
+from wtforms import StringField, TextAreaField, HiddenField, URLField, SelectField, PasswordField, EmailField
 from wtforms.validators import InputRequired, Email, Length, URL, Optional
 from models import City, connect_db, db
 
@@ -61,12 +61,12 @@ class SignupForm(FlaskForm):
         validators=[Optional()]
     )
 
-    email = StringField(
+    email = EmailField(
         'email',
         validators=[InputRequired(), Email()]
     )
 
-    password = StringField(
+    password = PasswordField(
         'password',
         validators=[InputRequired(), Length(min=6)]
     )
@@ -85,11 +85,41 @@ class LoginForm(FlaskForm):
         validators=[InputRequired()]
     )
 
-    password = StringField(
+    password = PasswordField(
         'password',
         validators=[InputRequired()]
     )
 
+
 class CSRFProtectionForm(FlaskForm):
     """csrf protection when no form fields"""
     ...
+
+
+class ProfileEditForm(FlaskForm):
+    '''form for editing user profile'''
+
+    first_name = StringField(
+        'first name',
+        validators=[InputRequired()]
+    )
+
+    last_name = StringField(
+        'last name',
+        validators=[InputRequired()]
+    )
+
+    description = TextAreaField(
+        'description',
+        validators=[Optional()]
+    )
+
+    email = EmailField(
+        'email',
+        validators=[InputRequired(), Email()]
+    )
+
+    image_url = StringField(
+        'image',
+        validators=[Optional(), URL()]
+    )

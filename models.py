@@ -183,8 +183,10 @@ class User(db.Model):
             admin=admin
         )
 
-        db.session.add(user)
-        db.session.commit()
+        return user
+
+        # db.session.add(user)
+        # db.session.commit()
 
     @classmethod
     def authenticate(cls, username, password):

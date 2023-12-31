@@ -6,6 +6,12 @@
 
 <h1 class="mb-4">Edit Profile</h1>
 
-<!-- form goes here -->
+<form action="{{ url_for('edit_profile')}}" method="POST">
+
+    {% include '_form.html' %}
+
+
+    <button>Submit Changes</button>
+</form>
 
 {% endblock %}
